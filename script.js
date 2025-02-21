@@ -1,14 +1,46 @@
-// Sample data for the grid items
+// Grid data for each tab
 const gridData = {
     money: [
-        { title: 'Direct Deposit', label: 'Get Paid Early' },
-        { title: 'Cash Card', label: 'Spend' },
-        { title: 'Banking', label: 'Mobile Bank' },
-        { title: 'Payments', label: 'Send & Receive' },
-        { title: 'Bitcoin', label: 'Buy & Sell' },
-        { title: 'Stocks', label: 'Invest' },
-        { title: 'Money Tools', label: 'Manage' },
-        { title: 'Round Ups', label: 'Save' }
+        { 
+            title: 'Direct Deposit',
+            label: 'Get Paid Early',
+            description: 'Get your paycheck up to two days early with direct deposit. Just share your Cash App routing and account numbers with your employer and get paid sooner, with no hidden fees or hassle.'
+        },
+        { 
+            title: 'Cash Card',
+            label: 'Spend',
+            description: 'A free, customizable debit card that works everywhere Visa is accepted. Design your own card, add it to Apple Pay or Google Pay, and get instant discounts at your favorite spots with Cash App Boosts.'
+        },
+        { 
+            title: 'Banking',
+            label: 'Mobile Bank',
+            description: 'A full-featured mobile bank account without the paperwork. Send and receive money instantly, use your free debit card everywhere, and manage your money with powerful tools built right in.'
+        },
+        { 
+            title: 'Payments',
+            label: 'Send & Receive',
+            description: 'Send and receive money instantly with anyone in the US. No forms to fill out, no bank details needed - just enter an amount, pick a $cashtag, and tap send.'
+        },
+        { 
+            title: 'Bitcoin',
+            label: 'Buy & Sell',
+            description: 'Buy, sell, and send Bitcoin without the wait. Start with as little as $1 and trade instantly, 24/7. Your Bitcoin is kept secure in our vault system with state-of-the-art encryption.'
+        },
+        { 
+            title: 'Stocks',
+            label: 'Invest',
+            description: 'Invest in stocks with as little as $1. Buy fractional shares of your favorite companies instantly, with no commission fees. Track your portfolio in real-time and learn as you grow.'
+        },
+        { 
+            title: 'Money Tools',
+            label: 'Manage',
+            description: 'Take control of your money with powerful tools built right into Cash App. Set spending limits, track your activity, automate your savings, and get detailed financial insights.'
+        },
+        { 
+            title: 'Round Ups',
+            label: 'Save',
+            description: 'Turn everyday purchases into investments automatically. Round up every transaction to the nearest dollar and invest the difference in stocks or Bitcoin. Small change, big potential.'
+        }
     ],
     'send-money': [
         { title: 'Instant Transfer', label: 'Send Instantly' },
@@ -52,43 +84,83 @@ const gridData = {
     ]
 };
 
+// Tab order for navigation (matches visual order in tab bar)
+const tabOrder = ['money', 'card', 'send-money', 'local', 'account'];
+
 // Current active tab
 let currentTab = 'money';
 
 // DOM Elements
-const gridContainer = document.getElementById('gridContainer');
-const modal = document.getElementById('modal');
 const tabButtons = document.querySelectorAll('.tab-btn');
-const pageTitle = document.querySelector('.page-title');
+const mainContent = document.querySelector('main');
 
 // Create grid items for a specific tab
 function createGridItems(tabName, direction = null) {
-    const items = gridData[tabName];
-    gridContainer.innerHTML = '';
+    // Create a new container
+    const newContainer = document.createElement('div');
+    newContainer.className = 'grid-container';
     
+    // Add items to the new container
+    const items = gridData[tabName];
     items.forEach((item, index) => {
         const gridItem = document.createElement('div');
         gridItem.className = 'grid-item';
         gridItem.dataset.id = `${tabName}-${index}`;
-        if (direction) {
-            gridItem.classList.add(`slide-${direction}`);
-        }
         
         const label = document.createElement('div');
         label.className = 'item-label';
         label.textContent = item.label;
         
         gridItem.appendChild(label);
-        
-        // Add click event for modal
         gridItem.addEventListener('click', () => openModal(item));
-        
-        gridContainer.appendChild(gridItem);
+        newContainer.appendChild(gridItem);
     });
+    
+    // Handle animation
+    if (direction) {
+        // Set initial position
+        newContainer.classList.add(`incoming-${direction}`);
+        mainContent.appendChild(newContainer);
+        
+        // Force reflow
+        newContainer.offsetHeight;
+        
+        // Trigger animations
+        requestAnimationFrame(() => {
+            const oldContainer = document.getElementById('gridContainer');
+            if (oldContainer) {
+                oldContainer.classList.add(`sliding-${direction}`);
+            }
+            newContainer.style.transform = 'translateX(0)';
+        });
+        
+        // Cleanup after animation
+        setTimeout(() => {
+            const oldContainer = document.getElementById('gridContainer');
+            if (oldContainer) {
+                oldContainer.remove();
+            }
+            newContainer.classList.remove(`incoming-${direction}`);
+            newContainer.removeAttribute('style');
+            newContainer.id = 'gridContainer';
+        }, 400);
+    } else {
+        // Initial load with animation for consistency
+        newContainer.id = 'gridContainer';
+        mainContent.appendChild(newContainer);
+        
+        // Force layout recalculation
+        requestAnimationFrame(() => {
+            newContainer.style.display = 'none';
+            newContainer.offsetHeight; // Force reflow
+            newContainer.style.display = '';
+        });
+    }
 }
 
 // Modal handlers
 function openModal(item) {
+    const modal = document.getElementById('modal');
     const modalContent = modal.querySelector('.modal-content');
     const clickedItem = event.target.closest('.grid-item');
     modal.dataset.sourceElement = clickedItem.dataset.id;
@@ -106,27 +178,33 @@ function openModal(item) {
         modalContent.style.height = `${clickedRect.height}px`;
         modalContent.style.top = `${clickedRect.top}px`;
         modalContent.style.left = `${clickedRect.left}px`;
+        modalContent.classList.add('initial');
         
         // Update content
         modal.querySelector('.modal-title').textContent = item.title;
-        modal.querySelector('.modal-text').textContent = item.label;
+        modal.querySelector('.modal-text').textContent = item.description || item.label;
         
         // Show modal and trigger animation to full screen
         requestAnimationFrame(() => {
             modal.classList.add('active');
+            document.querySelector('.nav-brand').style.opacity = '0';
             modalContent.style.width = '100%';
             modalContent.style.height = '100%';
             modalContent.style.top = '0';
             modalContent.style.left = '0';
+            modalContent.classList.remove('initial');
         });
     });
 }
 
 function closeModal() {
+    const modal = document.getElementById('modal');
     const modalContent = modal.querySelector('.modal-content');
     const sourceId = modal.dataset.sourceElement;
     const sourceElement = document.querySelector(`[data-id="${sourceId}"]`);
     const returnRect = sourceElement.getBoundingClientRect();
+    
+    modalContent.classList.add('initial');
     
     // Animate back to original position and size
     modalContent.style.width = `${returnRect.width}px`;
@@ -135,6 +213,7 @@ function closeModal() {
     modalContent.style.left = `${returnRect.left}px`;
     
     modal.classList.remove('active');
+    document.querySelector('.nav-brand').style.opacity = '1';
     
     // Clean up after animation
     setTimeout(() => {
@@ -143,14 +222,18 @@ function closeModal() {
         modalContent.style.top = '';
         modalContent.style.left = '';
         modal.dataset.sourceElement = '';
+        modalContent.classList.remove('initial');
     }, 400);
 }
 
-// Tab handling
-function switchTab(newTab) {
-    const oldTabIndex = Array.from(tabButtons).findIndex(btn => btn.dataset.tab === currentTab);
-    const newTabIndex = Array.from(tabButtons).findIndex(btn => btn.dataset.tab === newTab);
-    const direction = newTabIndex > oldTabIndex ? 'left' : 'right';
+// Handle tab switching
+function switchTab(newTab, direction = null) {
+    const oldTabIndex = tabOrder.indexOf(currentTab);
+    const newTabIndex = tabOrder.indexOf(newTab);
+    
+    if (!direction) {
+        direction = newTabIndex > oldTabIndex ? 'left' : 'right';
+    }
     
     // Update active tab
     tabButtons.forEach(btn => {
@@ -160,12 +243,29 @@ function switchTab(newTab) {
         }
     });
     
-    // Update page title
-    pageTitle.textContent = newTab.charAt(0).toUpperCase() + newTab.slice(1);
-    
     // Update grid with animation
     createGridItems(newTab, direction);
     currentTab = newTab;
+}
+
+// Navigate between tabs
+function navigateTab(direction) {
+    if (document.querySelector('.grid-container.sliding-left, .grid-container.sliding-right')) {
+        return; // Don't allow navigation while animation is in progress
+    }
+    
+    const currentIndex = tabOrder.indexOf(currentTab);
+    let newIndex;
+    
+    if (direction === 'left') {
+        newIndex = currentIndex - 1;
+        if (newIndex < 0) newIndex = tabOrder.length - 1;
+    } else {
+        newIndex = currentIndex + 1;
+        if (newIndex >= tabOrder.length) newIndex = 0;
+    }
+    
+    switchTab(tabOrder[newIndex], direction);
 }
 
 // Event Listeners
@@ -179,22 +279,56 @@ tabButtons.forEach(btn => {
     });
 });
 
-// Handle scroll
-window.addEventListener('scroll', () => {
-    const scrollPosition = window.scrollY;
-    const titleElement = document.querySelector('.page-title');
-    const fadeStartPoint = 0;
-    const fadeEndPoint = 100;  // Adjust this value to control how quickly it fades
-    
-    if (scrollPosition <= fadeStartPoint) {
-        titleElement.style.opacity = 1;
-    } else if (scrollPosition >= fadeEndPoint) {
-        titleElement.style.opacity = 0;
-    } else {
-        const opacity = 1 - ((scrollPosition - fadeStartPoint) / (fadeEndPoint - fadeStartPoint));
-        titleElement.style.opacity = opacity;
+// Initialize grid with animation for consistency
+createGridItems(currentTab, 'right');
+
+// Handle keyboard navigation
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+        navigateTab('left');
+    } else if (event.key === 'ArrowRight') {
+        navigateTab('right');
     }
 });
 
-// Initialize grid
-createGridItems(currentTab);
+// Touch navigation setup
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX;
+}
+
+function handleTouchMove(event) {
+    touchEndX = event.touches[0].clientX;
+}
+
+function handleTouchEnd() {
+    const swipeThreshold = 50;
+    const swipeDistance = touchEndX - touchStartX;
+    
+    if (Math.abs(swipeDistance) > swipeThreshold) {
+        if (swipeDistance > 0) {
+            navigateTab('right');
+        } else {
+            navigateTab('left');
+        }
+    }
+    
+    touchStartX = 0;
+    touchEndX = 0;
+}
+
+document.addEventListener('touchstart', handleTouchStart);
+document.addEventListener('touchmove', handleTouchMove);
+document.addEventListener('touchend', handleTouchEnd);
+
+// Title fade on scroll
+document.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY;
+    if (scrollPosition > 0) {
+        document.querySelector('.page-title').style.opacity = 0;
+    } else {
+        document.querySelector('.page-title').style.opacity = 1;
+    }
+});
