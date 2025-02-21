@@ -150,48 +150,16 @@ main {
     max-width: 1400px;
     margin: 0 auto;
     margin-bottom: 100px;
-    position: relative;
     will-change: transform;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    left: 0;
+    right: 0;
 }
 
-.grid-container.sliding-left {
-    transform: translateX(calc(-100% - 80pt));
-}
-
+.grid-container.incoming-left,
+.grid-container.incoming-right,
+.grid-container.sliding-left,
 .grid-container.sliding-right {
-    transform: translateX(calc(100% + 80pt));
-}
-
-.grid-container.incoming-left {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    transform: translateX(calc(100% + 80pt));
-}
-
-.grid-container.incoming-right {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    transform: translateX(calc(-100% - 80pt));
-}
-
-.grid-container.slide-left {
-    transform: translateX(-100%);
-}
-
-.grid-container.slide-right {
-    transform: translateX(100%);
-}
-
-.grid-container.transitioning {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    display: none;  /* Remove old animation classes */
 }
 
 .grid-item {

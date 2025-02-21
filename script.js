@@ -99,9 +99,11 @@ function createGridItems(tabName, direction = null) {
     // Create a new container
     const newContainer = document.createElement('div');
     newContainer.className = 'grid-container';
-    
-    // Add items to the new container
-    const items = gridData[tabName];
+    newContainer.style.position = direction ? 'absolute' : 'relative';
+    newContainer.style.width = 'calc(100% - 80px)';
+    newContainer.style.top = mainContent.scrollTop + 'px';  // Match scroll position
+
+    // Add grid items
     items.forEach((item, index) => {
         const gridItem = document.createElement('div');
         gridItem.className = 'grid-item';
@@ -112,49 +114,56 @@ function createGridItems(tabName, direction = null) {
         label.textContent = item.label;
         
         gridItem.appendChild(label);
-        // Remove old event listeners since we're handling touches globally now
         newContainer.appendChild(gridItem);
     });
     
     // Handle animation
     if (direction) {
+        // Calculate positioning
+        let startTransform = direction === 'left' ? '100%' : '-100%';
+        
         // Set initial position
-        newContainer.classList.add(`incoming-${direction}`);
+        newContainer.style.transform = `translateX(${startTransform})`;
+        newContainer.style.transition = 'none';
         mainContent.appendChild(newContainer);
         
         // Force reflow
         newContainer.offsetHeight;
         
-        // Trigger animations
-        requestAnimationFrame(() => {
-            const oldContainer = document.getElementById('gridContainer');
-            if (oldContainer) {
-                oldContainer.classList.add(`sliding-${direction}`);
-            }
-            newContainer.style.transform = 'translateX(0)';
-        });
+        // Get the old container and prepare for animation
+        const oldContainer = document.getElementById('gridContainer');
+        const endTransform = direction === 'left' ? '-100%' : '100%';
         
-        // Cleanup after animation
-        setTimeout(() => {
-            const oldContainer = document.getElementById('gridContainer');
+        if (oldContainer) {
+            oldContainer.style.position = 'absolute';
+            oldContainer.style.width = 'calc(100% - 80px)';
+            oldContainer.style.top = mainContent.scrollTop + 'px';
+        }
+        
+        // Start animations
+        requestAnimationFrame(() => {
             if (oldContainer) {
-                oldContainer.remove();
+                oldContainer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                oldContainer.style.transform = `translateX(${endTransform})`;
             }
-            newContainer.classList.remove(`incoming-${direction}`);
-            newContainer.removeAttribute('style');
-            newContainer.id = 'gridContainer';
-        }, 400);
+            
+            newContainer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            newContainer.style.transform = 'translateX(0)';
+            
+            // Clean up after animation
+            setTimeout(() => {
+                if (oldContainer) {
+                    oldContainer.remove();
+                }
+                newContainer.style.position = 'relative';
+                newContainer.style.transition = '';
+                newContainer.style.transform = '';
+                newContainer.id = 'gridContainer';
+            }, 400);
+        });
     } else {
-        // Initial load with animation for consistency
         newContainer.id = 'gridContainer';
         mainContent.appendChild(newContainer);
-        
-        // Force layout recalculation
-        requestAnimationFrame(() => {
-            newContainer.style.display = 'none';
-            newContainer.offsetHeight; // Force reflow
-            newContainer.style.display = '';
-        });
     }
 }
 
