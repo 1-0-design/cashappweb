@@ -206,13 +206,16 @@ main {
     will-change: transform;
 }
 
-.grid-item:hover {
-    transform: scale(1.025) translateY(-2.5px);
-    box-shadow: 
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04),
-        0 0 15px rgba(0, 0, 0, 0.2);
-    z-index: 2;
+/* Only apply hover effects on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+    .grid-item:hover {
+        transform: scale(1.025) translateY(-2.5px);
+        box-shadow: 
+            0 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0 10px 10px -5px rgba(0, 0, 0, 0.04),
+            0 0 15px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+    }
 }
 
 
