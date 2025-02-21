@@ -1,30 +1,54 @@
 // Sample data for the grid items
 const gridData = {
     money: [
-        { title: 'Send', label: 'Send Money' },
-        { title: 'Receive', label: 'Get Paid' },
-        { title: 'Invest', label: 'Stocks' },
+        { title: 'Direct Deposit', label: 'Get Paid Early' },
+        { title: 'Cash Card', label: 'Spend' },
+        { title: 'Banking', label: 'Mobile Bank' },
+        { title: 'Payments', label: 'Send & Receive' },
         { title: 'Bitcoin', label: 'Buy & Sell' },
-        { title: 'Banking', label: 'Cash Card' },
-        { title: 'Boost', label: 'Save Money' }
+        { title: 'Stocks', label: 'Invest' },
+        { title: 'Money Tools', label: 'Manage' },
+        { title: 'Round Ups', label: 'Save' }
+    ],
+    'send-money': [
+        { title: 'Instant Transfer', label: 'Send Instantly' },
+        { title: 'QR Code', label: 'Scan & Pay' },
+        { title: 'Request', label: 'Get Paid' },
+        { title: 'Group Pay', label: 'Split Bills' },
+        { title: 'Cash Tags', label: '$Cashtag' },
+        { title: 'Cross Border', label: 'International' },
+        { title: 'Paper Money', label: 'Cash Out' },
+        { title: 'Business', label: 'For Work' }
     ],
     card: [
-        { title: 'Physical', label: 'Order Card' },
-        { title: 'Virtual', label: 'Use Now' },
-        { title: 'Design', label: 'Customize' },
-        { title: 'Rewards', label: 'Cash Back' }
+        { title: 'Custom Design', label: 'Personalize' },
+        { title: 'Contactless', label: 'Tap to Pay' },
+        { title: 'Boosts', label: 'Save Money' },
+        { title: 'Virtual Card', label: 'Shop Online' },
+        { title: 'ATM', label: 'Withdraw' },
+        { title: 'Security', label: 'Lock Card' },
+        { title: 'Pin', label: 'Set Up' },
+        { title: 'Limits', label: 'Spending' }
     ],
-    discover: [
-        { title: 'Friends', label: 'Social' },
-        { title: 'Offers', label: 'Deals' },
-        { title: 'News', label: 'Updates' },
-        { title: 'Learn', label: 'Tutorials' }
+    local: [
+        { title: 'Cash Map', label: 'Near You' },
+        { title: 'Boost Spots', label: 'Discounts' },
+        { title: 'Bitcoin ATMs', label: 'Buy BTC' },
+        { title: 'ATM Finder', label: 'Get Cash' },
+        { title: 'Community', label: 'Local Events' },
+        { title: 'Coffee', label: 'Cafe Deals' },
+        { title: 'Partners', label: 'Local Shops' },
+        { title: 'Favorites', label: 'Save Places' }
     ],
     account: [
         { title: 'Profile', label: 'Settings' },
         { title: 'Security', label: 'Privacy' },
+        { title: 'Statements', label: 'History' },
         { title: 'Support', label: 'Help' },
-        { title: 'History', label: 'Activity' }
+        { title: 'Rewards', label: 'Earn' },
+        { title: 'Notifications', label: 'Alerts' },
+        { title: 'Family', label: 'Accounts' },
+        { title: 'Documents', label: 'Tax Forms' }
     ]
 };
 
