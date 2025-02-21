@@ -112,7 +112,13 @@ function createGridItems(tabName, direction = null) {
         label.textContent = item.label;
         
         gridItem.appendChild(label);
-        gridItem.addEventListener('click', () => openModal(item));
+        // Add both click and touch handlers
+        const handleInteraction = (e) => {
+            e.preventDefault(); // Prevent any default behavior
+            openModal(item, gridItem);
+        };
+        gridItem.addEventListener('click', handleInteraction);
+        gridItem.addEventListener('touchend', handleInteraction);
         newContainer.appendChild(gridItem);
     });
     
@@ -159,10 +165,11 @@ function createGridItems(tabName, direction = null) {
 }
 
 // Modal handlers
-function openModal(item) {
+function openModal(item, sourceElement) {
     const modal = document.getElementById('modal');
     const modalContent = modal.querySelector('.modal-content');
-    const clickedItem = event.target.closest('.grid-item');
+    const clickedItem = sourceElement || event.target.closest('.grid-item');
+    if (!clickedItem) return; // Guard against missing element
     modal.dataset.sourceElement = clickedItem.dataset.id;
     const clickedRect = clickedItem.getBoundingClientRect();
     
@@ -296,25 +303,35 @@ let touchStartX = 0;
 let touchEndX = 0;
 
 function handleTouchStart(event) {
-    touchStartX = event.touches[0].clientX;
+    // Only track touch start if not interacting with a grid item
+    if (!event.target.closest('.grid-item')) {
+        touchStartX = event.touches[0].clientX;
+    }
 }
 
 function handleTouchMove(event) {
-    touchEndX = event.touches[0].clientX;
+    // Only track touch move if we have a valid touch start
+    if (touchStartX !== 0) {
+        touchEndX = event.touches[0].clientX;
+    }
 }
 
-function handleTouchEnd() {
-    const swipeThreshold = 50;
-    const swipeDistance = touchEndX - touchStartX;
-    
-    if (Math.abs(swipeDistance) > swipeThreshold) {
-        if (swipeDistance > 0) {
-            navigateTab('right');
-        } else {
-            navigateTab('left');
+function handleTouchEnd(event) {
+    // Only handle swipe if we're not interacting with a grid item
+    if (!event.target.closest('.grid-item')) {
+        const swipeThreshold = 50;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (Math.abs(swipeDistance) > swipeThreshold) {
+            if (swipeDistance > 0) {
+                navigateTab('right');
+            } else {
+                navigateTab('left');
+            }
         }
     }
     
+    // Reset touch tracking
     touchStartX = 0;
     touchEndX = 0;
 }
