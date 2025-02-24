@@ -122,13 +122,12 @@ body {
 .page-title {
     text-align: center;
     padding-top: 100px;
-    padding-bottom: 40px;
+    padding-bottom: 20px;  /* Reduced padding */
     font-size: 28px;
     font-weight: 400;
     transition: opacity 0.2s ease-out;
     position: relative;
     z-index: 50;
-    margin-bottom: -20pt;
 }
 
 /* Main Content */
@@ -137,22 +136,34 @@ main {
     overflow: visible;
     width: 100%;
     z-index: 10;
-    padding: 20px 0; /* Add vertical padding for hover space */
-    margin-top: -20px; /* Offset the padding */
+    padding-top: 40px;
+}
+
+/* Container for animations */
+.animation-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    min-height: 1000px;
+    padding: 30px 0 60px;
 }
 
 /* Grid Layout */
 .grid-container {
+    position: absolute;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 20px;
-    width: calc(100% - 80px);
+    width: calc(100% - 80px);  /* Account for side padding */
     max-width: 1400px;
-    margin: 0 auto;
-    margin-bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);  /* Center the grid */
     will-change: transform;
-    left: 0;
-    right: 0;
+}
+
+/* Initial/static grid container */
+#gridContainer {
+    position: relative;
 }
 
 .grid-container.incoming-left,

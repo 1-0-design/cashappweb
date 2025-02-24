@@ -1,50 +1,89 @@
-/* Grid Layout */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Force exactly 4 columns */
-    gap: var(--grid-gap);
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    margin-bottom: 100px; /* Space for the tab bar */
+/* Main content positioning */
+main {
+    padding-top: calc(var(--page-margin) - 30px);
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
+/* Grid Layout */
+.animation-container {
+    width: min(1200px, 100% - (var(--page-margin) * 2));
+    position: relative;
+    overflow: hidden;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--grid-gap);
+    width: 100%;
+    margin-bottom: 100px; /* Space for the tab bar */
+    box-sizing: border-box;
+}
+
+/* Grid Items */
+.grid-item {
+    aspect-ratio: 5/8;
+    background: #FFFFFF;
+    border-radius: 20% / 12.5%;
+    position: relative;
+    cursor: pointer;
+    transform-origin: center center;
+    transition: transform var(--transition-duration) cubic-bezier(0.4, 0.0, 0.2, 1);
+    margin-bottom: 45px; /* Space for label */
+    will-change: transform;
+}
+
+.item-label {
+    position: absolute;
+    bottom: -35px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Responsive breakpoints */
 @media (max-width: 1200px) {
     .grid-container {
-        grid-template-columns: repeat(4, 1fr); /* Maintain 4 columns */
+        grid-template-columns: repeat(4, 1fr);
         gap: 30px;
     }
 }
 
 @media (max-width: 900px) {
     .grid-container {
-        grid-template-columns: repeat(3, 1fr); /* 3 columns */
+        grid-template-columns: repeat(3, 1fr);
         gap: 25px;
     }
 }
 
 @media (max-width: 600px) {
     .grid-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns */
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 }
 
-.grid-item {
-    aspect-ratio: 5/8;
-    background: #FFFFFF;
-    border-radius: 20% / 12.5%;  /* Creates circular corners (20% of width) */
-    position: relative;
-    cursor: pointer;
-    transition: all var(--transition-duration) cubic-bezier(0.34, 1.56, 0.64, 1);
-    margin-bottom: 45px; /* Increased space for label */
+/* CSS Custom Properties */
+:root {
+    --cash-green: #00EB14;
+    --grid-gap: 40px;
+    --transition-duration: 300ms;
+    --page-margin: 40px;
 }
 
-.item-label {
-    position: absolute;
-    bottom: -35px; /* Increased distance from rectangle */
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-weight: 500;
+@media (max-width: 900px) {
+    :root {
+        --grid-gap: 25px;
+        --page-margin: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --grid-gap: 15px;
+        --page-margin: 15px;
+    }
 }

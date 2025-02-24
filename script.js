@@ -84,7 +84,7 @@ const gridData = {
     ]
 };
 
-// Tab order for navigation (matches visual order in tab bar)
+// Tab order for navigation
 const tabOrder = ['money', 'card', 'send-money', 'local', 'account'];
 
 // Current active tab
@@ -99,12 +99,9 @@ function createGridItems(tabName, direction = null) {
     // Create a new container
     const newContainer = document.createElement('div');
     newContainer.className = 'grid-container';
-    newContainer.style.position = direction ? 'absolute' : 'relative';
-    newContainer.style.width = 'calc(100% - 80px)';
-    newContainer.style.top = mainContent.scrollTop + 'px';  // Match scroll position
-
+    
     // Add grid items
-    items.forEach((item, index) => {
+    gridData[tabName].forEach((item, index) => {
         const gridItem = document.createElement('div');
         gridItem.className = 'grid-item';
         gridItem.dataset.id = `${tabName}-${index}`;
@@ -113,173 +110,83 @@ function createGridItems(tabName, direction = null) {
         label.className = 'item-label';
         label.textContent = item.label;
         
+        gridItem.addEventListener('click', (event) => {
+            event.preventDefault();
+            openModal(item, gridItem);
+        });
+        
         gridItem.appendChild(label);
         newContainer.appendChild(gridItem);
     });
     
+    const animationContainer = document.querySelector('.animation-container') || (() => {
+        const container = document.createElement('div');
+        container.className = 'animation-container';
+        mainContent.appendChild(container);
+        return container;
+    })();
+
     // Handle animation
     if (direction) {
-        // Calculate positioning
-        let startTransform = direction === 'left' ? '100%' : '-100%';
+        const oldContainer = document.getElementById('gridContainer');
         
-        // Set initial position
-        newContainer.style.transform = `translateX(${startTransform})`;
-        newContainer.style.transition = 'none';
-        mainContent.appendChild(newContainer);
+        // Position absolutely during animation
+        newContainer.style.position = 'absolute';
+        newContainer.style.top = '0';
+        newContainer.style.width = '100%';
+        
+        // Set initial position off-screen
+        newContainer.style.transform = `translateX(${direction === 'left' ? '100%' : '-100%'})`;
+        animationContainer.appendChild(newContainer);
         
         // Force reflow
         newContainer.offsetHeight;
         
-        // Get the old container and prepare for animation
-        const oldContainer = document.getElementById('gridContainer');
-        const endTransform = direction === 'left' ? '-100%' : '100%';
-        
+        // Setup old container
         if (oldContainer) {
             oldContainer.style.position = 'absolute';
-            oldContainer.style.width = 'calc(100% - 80px)';
-            oldContainer.style.top = mainContent.scrollTop + 'px';
+            oldContainer.style.top = '0';
+            oldContainer.style.width = '100%';
+            oldContainer.style.transform = 'translateX(0)';
         }
+        
+        // Get transition duration
+        const transitionDuration = getComputedStyle(document.documentElement)
+            .getPropertyValue('--transition-duration')
+            .trim()
+            .replace('ms', '');
         
         // Start animations
         requestAnimationFrame(() => {
+            const timing = `transform ${transitionDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1)`;
+            
             if (oldContainer) {
-                oldContainer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                oldContainer.style.transform = `translateX(${endTransform})`;
+                oldContainer.style.transition = timing;
+                oldContainer.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
             }
             
-            newContainer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            newContainer.style.transition = timing;
             newContainer.style.transform = 'translateX(0)';
             
             // Clean up after animation
             setTimeout(() => {
-                if (oldContainer) {
+                if (oldContainer && oldContainer.parentNode) {
                     oldContainer.remove();
                 }
+                newContainer.id = 'gridContainer';
                 newContainer.style.position = 'relative';
                 newContainer.style.transition = '';
-                newContainer.style.transform = '';
-                newContainer.id = 'gridContainer';
-            }, 400);
+            }, parseInt(transitionDuration, 10));
         });
     } else {
+        // Initial load - no animation
         newContainer.id = 'gridContainer';
-        mainContent.appendChild(newContainer);
+        animationContainer.appendChild(newContainer);
     }
-}
-
-// Modal handlers
-function openModal(item, sourceElement) {
-    const modal = document.getElementById('modal');
-    const modalContent = modal.querySelector('.modal-content');
-    const clickedItem = sourceElement || event.target.closest('.grid-item');
-    if (!clickedItem) return; // Guard against missing element
-    modal.dataset.sourceElement = clickedItem.dataset.id;
-    const clickedRect = clickedItem.getBoundingClientRect();
-    
-    // Reset any previous styles
-    modalContent.style.width = '';
-    modalContent.style.height = '';
-    modalContent.style.top = '';
-    modalContent.style.left = '';
-    
-    // Set initial position and size
-    requestAnimationFrame(() => {
-        modalContent.style.width = `${clickedRect.width}px`;
-        modalContent.style.height = `${clickedRect.height}px`;
-        modalContent.style.top = `${clickedRect.top}px`;
-        modalContent.style.left = `${clickedRect.left}px`;
-        modalContent.classList.add('initial');
-        
-        // Update content
-        modal.querySelector('.modal-title').textContent = item.title;
-        modal.querySelector('.modal-text').textContent = item.description || item.label;
-        
-        // Show modal and trigger animation to full screen
-        requestAnimationFrame(() => {
-            modal.classList.add('active');
-            document.querySelector('.nav-brand').style.opacity = '0';
-            modalContent.style.width = '100%';
-            modalContent.style.height = '100%';
-            modalContent.style.top = '0';
-            modalContent.style.left = '0';
-            modalContent.classList.remove('initial');
-        });
-    });
-}
-
-function closeModal() {
-    const modal = document.getElementById('modal');
-    const modalContent = modal.querySelector('.modal-content');
-    const sourceId = modal.dataset.sourceElement;
-    const sourceElement = document.querySelector(`[data-id="${sourceId}"]`);
-    const returnRect = sourceElement.getBoundingClientRect();
-    
-    modalContent.classList.add('initial');
-    
-    // Animate back to original position and size
-    modalContent.style.width = `${returnRect.width}px`;
-    modalContent.style.height = `${returnRect.height}px`;
-    modalContent.style.top = `${returnRect.top}px`;
-    modalContent.style.left = `${returnRect.left}px`;
-    
-    modal.classList.remove('active');
-    document.querySelector('.nav-brand').style.opacity = '1';
-    
-    // Clean up after animation
-    setTimeout(() => {
-        modalContent.style.width = '';
-        modalContent.style.height = '';
-        modalContent.style.top = '';
-        modalContent.style.left = '';
-        modal.dataset.sourceElement = '';
-        modalContent.classList.remove('initial');
-    }, 400);
-}
-
-// Handle tab switching
-function switchTab(newTab, direction = null) {
-    const oldTabIndex = tabOrder.indexOf(currentTab);
-    const newTabIndex = tabOrder.indexOf(newTab);
-    
-    if (!direction) {
-        direction = newTabIndex > oldTabIndex ? 'left' : 'right';
-    }
-    
-    // Update active tab
-    tabButtons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.tab === newTab) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // Update grid with animation
-    createGridItems(newTab, direction);
-    currentTab = newTab;
-}
-
-// Navigate between tabs
-function navigateTab(direction) {
-    if (document.querySelector('.grid-container.sliding-left, .grid-container.sliding-right')) {
-        return; // Don't allow navigation while animation is in progress
-    }
-    
-    const currentIndex = tabOrder.indexOf(currentTab);
-    let newIndex;
-    
-    if (direction === 'left') {
-        newIndex = currentIndex - 1;
-        if (newIndex < 0) newIndex = tabOrder.length - 1;
-    } else {
-        newIndex = currentIndex + 1;
-        if (newIndex >= tabOrder.length) newIndex = 0;
-    }
-    
-    switchTab(tabOrder[newIndex], direction);
 }
 
 // Event Listeners
-document.querySelector('.close-btn').addEventListener('click', closeModal);
+document.querySelector('.close-btn')?.addEventListener('click', closeModal);
 tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const newTab = btn.dataset.tab;
@@ -288,9 +195,6 @@ tabButtons.forEach(btn => {
         }
     });
 });
-
-// Initialize grid with animation for consistency
-createGridItems(currentTab, 'right');
 
 // Handle keyboard navigation
 document.addEventListener('keydown', (event) => {
@@ -310,19 +214,21 @@ let touchStartTime = 0;
 let isSwiping = false;
 
 function handleTouchStart(event) {
-    // Store both X and Y coordinates
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-    touchStartTime = Date.now();
-    isSwiping = false;
+    // Only handle touch events on touch devices
+    if (window.matchMedia('(pointer: coarse)').matches) {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchStartTime = Date.now();
+        isSwiping = false;
+    }
 }
 
 function handleTouchMove(event) {
-    if (event.touches.length > 0) {
+    // Only handle touch events on touch devices
+    if (window.matchMedia('(pointer: coarse)').matches && event.touches.length > 0) {
         const deltaX = event.touches[0].clientX - touchStartX;
         const deltaY = event.touches[0].clientY - touchStartY;
         
-        // If horizontal movement is greater than vertical and exceeds threshold, mark as swipe
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
             isSwiping = true;
         }
@@ -333,11 +239,15 @@ function handleTouchMove(event) {
 }
 
 function handleTouchEnd(event) {
+    // Only handle touch events on touch devices
+    if (!window.matchMedia('(pointer: coarse)').matches) {
+        return;
+    }
+
     const touchEndTime = Date.now();
     const touchDuration = touchEndTime - touchStartTime;
     const touchElement = event.target.closest('.grid-item');
     
-    // If it's a quick tap on a grid item (not a swipe), open the modal
     if (touchElement && !isSwiping && touchDuration < 200) {
         event.preventDefault();
         const itemIndex = Array.from(touchElement.parentNode.children).indexOf(touchElement);
@@ -346,7 +256,6 @@ function handleTouchEnd(event) {
         return;
     }
     
-    // Handle swipe navigation only if we detected a swipe
     if (isSwiping) {
         const swipeThreshold = 50;
         const swipeDistance = touchEndX - touchStartX;
@@ -360,7 +269,6 @@ function handleTouchEnd(event) {
         }
     }
     
-    // Reset touch tracking
     touchStartX = 0;
     touchEndX = 0;
     touchStartY = 0;
@@ -369,9 +277,12 @@ function handleTouchEnd(event) {
     isSwiping = false;
 }
 
-document.addEventListener('touchstart', handleTouchStart);
-document.addEventListener('touchmove', handleTouchMove);
-document.addEventListener('touchend', handleTouchEnd);
+// Only add touch events if we're on a touch device
+if (window.matchMedia('(pointer: coarse)').matches) {
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+}
 
 // Title fade on scroll
 document.addEventListener('scroll', () => {
@@ -382,3 +293,6 @@ document.addEventListener('scroll', () => {
         document.querySelector('.page-title').style.opacity = 1;
     }
 });
+
+// Initialize first grid
+createGridItems(currentTab);
