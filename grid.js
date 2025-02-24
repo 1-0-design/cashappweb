@@ -28,8 +28,6 @@ function createGridItems(tabName, direction = null) {
     // Handle animation
     if (direction) {
         const oldContainer = document.getElementById('gridContainer');
-        const bounds = animationContainer.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
         
         // Position absolutely during animation
         if (oldContainer) {
@@ -37,11 +35,13 @@ function createGridItems(tabName, direction = null) {
             oldContainer.style.width = '100%';
             oldContainer.style.left = '0';
             oldContainer.style.transform = 'none';
+            oldContainer.style.top = '0';
         }
         
         newContainer.style.position = 'absolute';
         newContainer.style.width = '100%';
         newContainer.style.transform = `translateX(${direction === 'left' ? '100%' : '-100%'})`;
+        newContainer.style.top = '0';
         animationContainer.appendChild(newContainer);
         
         // Force reflow
