@@ -8,17 +8,18 @@ main {
 
 /* Grid Layout */
 .animation-container {
-    width: min(1200px, 100% - (var(--page-margin) * 2));
+    width: 100%;
     position: relative;
     overflow: hidden;
+    padding: 0 var(--page-margin);
 }
 
 .grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: var(--grid-gap);
-    width: 100%;
-    margin-bottom: 100px; /* Space for the tab bar */
+    width: min(1200px, 100%);
+    margin: 0 auto 100px; /* Space for the tab bar and center the grid */
     box-sizing: border-box;
 }
 

@@ -29,18 +29,19 @@ function createGridItems(tabName, direction = null) {
     if (direction) {
         const oldContainer = document.getElementById('gridContainer');
         const bounds = animationContainer.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
         
         // Position absolutely during animation
         if (oldContainer) {
             oldContainer.style.position = 'absolute';
-            oldContainer.style.width = `${bounds.width}px`;
+            oldContainer.style.width = '100%';
             oldContainer.style.left = '0';
             oldContainer.style.transform = 'none';
         }
         
         newContainer.style.position = 'absolute';
-        newContainer.style.width = `${bounds.width}px`;
-        newContainer.style.left = direction === 'left' ? `${bounds.width}px` : `-${bounds.width}px`;
+        newContainer.style.width = '100%';
+        newContainer.style.transform = `translateX(${direction === 'left' ? '100%' : '-100%'})`;
         animationContainer.appendChild(newContainer);
         
         // Force reflow
@@ -54,15 +55,15 @@ function createGridItems(tabName, direction = null) {
         
         // Start animations
         requestAnimationFrame(() => {
-            const timing = `left ${transitionDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1)`;
+            const timing = `transform ${transitionDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1)`;
             
             if (oldContainer) {
                 oldContainer.style.transition = timing;
-                oldContainer.style.left = direction === 'left' ? `-${bounds.width}px` : `${bounds.width}px`;
+                oldContainer.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
             }
             
             newContainer.style.transition = timing;
-            newContainer.style.left = '0';
+            newContainer.style.transform = 'translateX(0)';
             
             // Clean up after animation
             setTimeout(() => {
@@ -71,7 +72,7 @@ function createGridItems(tabName, direction = null) {
                 }
                 newContainer.id = 'gridContainer';
                 newContainer.style.position = 'relative';
-                newContainer.style.left = '';
+                newContainer.style.transform = '';
                 newContainer.style.width = '100%';
                 newContainer.style.transition = '';
             }, parseInt(transitionDuration, 10));
