@@ -33,14 +33,19 @@ function createGridItems(tabName, direction = null) {
         if (oldContainer) {
             oldContainer.style.position = 'absolute';
             oldContainer.style.width = '100%';
-            oldContainer.style.left = '0';
-            oldContainer.style.transform = 'none';
+            oldContainer.style.maxWidth = '1200px';
+            oldContainer.style.left = '50%';
+            oldContainer.style.transform = 'translateX(-50%)';
             oldContainer.style.top = '0';
         }
         
         newContainer.style.position = 'absolute';
         newContainer.style.width = '100%';
-        newContainer.style.transform = `translateX(${direction === 'left' ? '100%' : '-100%'})`;
+        newContainer.style.maxWidth = '1200px';
+        newContainer.style.left = '50%';
+        newContainer.style.transform = direction === 'left' 
+            ? 'translate(calc(-50% + 100vw))'
+            : 'translate(calc(-50% - 100vw))';
         newContainer.style.top = '0';
         animationContainer.appendChild(newContainer);
         
@@ -59,11 +64,13 @@ function createGridItems(tabName, direction = null) {
             
             if (oldContainer) {
                 oldContainer.style.transition = timing;
-                oldContainer.style.transform = `translateX(${direction === 'left' ? '-100%' : '100%'})`;
+                oldContainer.style.transform = direction === 'left'
+                    ? 'translate(calc(-50% - 100vw))'
+                    : 'translate(calc(-50% + 100vw))';
             }
             
             newContainer.style.transition = timing;
-            newContainer.style.transform = 'translateX(0)';
+            newContainer.style.transform = 'translateX(-50%)';
             
             // Clean up after animation
             setTimeout(() => {
@@ -71,10 +78,13 @@ function createGridItems(tabName, direction = null) {
                     oldContainer.remove();
                 }
                 newContainer.id = 'gridContainer';
-                newContainer.style.position = 'relative';
+                newContainer.style.position = '';
+                newContainer.style.width = '';
+                newContainer.style.maxWidth = '';
+                newContainer.style.left = '';
                 newContainer.style.transform = '';
-                newContainer.style.width = '100%';
                 newContainer.style.transition = '';
+                newContainer.style.top = '';
             }, parseInt(transitionDuration, 10));
         });
     } else {

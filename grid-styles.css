@@ -11,15 +11,16 @@ main {
     margin-right: calc(-50vw + 50%);
     position: relative;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
 }
 
 .grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: var(--grid-gap);
-    width: min(1200px, 100% - (var(--page-margin) * 2));
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--page-margin);
     margin-bottom: 100px; /* Space for the tab bar */
     box-sizing: border-box;
 }
